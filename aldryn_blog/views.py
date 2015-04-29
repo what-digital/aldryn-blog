@@ -12,11 +12,11 @@ from django.views.generic.list import ListView
 from django.contrib.auth.models import User
 
 from menus.utils import set_language_changer
-from aldryn_common.paginator import DiggPaginator, paginate_by
+from aldryn_common.paginator import DiggPaginator
 
 from aldryn_blog import request_post_identifier
 from .models import Post, Category
-from .utils import generate_slugs, get_user_from_slug, get_blog_authors, get_slug_for_user
+from .utils import generate_slugs, get_user_from_slug, get_blog_authors, get_slug_for_user, paginate_by
 
 
 class BasePostView(object):

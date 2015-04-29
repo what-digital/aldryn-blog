@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.translation import get_language
+from django.conf import settings
 
 from hvad.utils import get_translation
 
@@ -98,3 +99,10 @@ def get_slug_in_language(record, language):
             return None
         else:
             return translation.slug
+
+
+def paginate_by(fallback=None):
+    try:
+        return settings.ALDRYN_BLOG_PAGINATOR_PAGINATE_BY
+    except AttributeError:
+        return fallback or 5

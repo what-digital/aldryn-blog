@@ -15,8 +15,10 @@
     {% block blog_meta %}
         <div class="aldryn-blog-meta">
             <span class="icon icon-pencil"></span>
+            {% if post.author %}
             {% trans "by" %} <a href="{% url 'aldryn_blog:author-posts' post.author.get_full_name|slugify %}">{{ post.author|user_name }}</a>
             &nbsp;
+            {% endif %}
             {% if post.category %}
                 <span class="icon icon-book"></span>
                 <a href="{{ post.category.get_absolute_url }}">{{ post.category }}</a>

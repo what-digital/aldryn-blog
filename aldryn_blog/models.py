@@ -175,7 +175,7 @@ class Post(models.Model):
         help_text=_('Will be displayed in lists, and at the start of the detail page (in bold)')
     )
     content = PlaceholderField('aldryn_blog_post_content', related_name='aldryn_blog_posts')
-    author = models.ForeignKey(to=AUTH_USER_MODEL, verbose_name=_('Author'))
+    author = models.ForeignKey(to=AUTH_USER_MODEL, verbose_name=_('Author'), null=True, blank=True)
     coauthors = models.ManyToManyField(
         to=AUTH_USER_MODEL,
         verbose_name=_('Co-Authors'),
@@ -262,6 +262,13 @@ class LatestEntriesPlugin(CMSPlugin):
         if tags.exists():
             posts = posts.filter(tags__in=tags)
         return posts[:self.latest_entries]
+
+
+class AllEntriesPlugin(CMSPlugin):
+
+    def get_posts(self):
+        posts = Post.published.filter_by_language(self.language)
+        return posts
 
 
 class AuthorsPlugin(CMSPlugin):
