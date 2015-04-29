@@ -28,7 +28,6 @@ class BlogCategoryMenu(CMSAttachMenu):
                 nodes.append(node)
             except NoReverseMatch:
                 pass
-        print nodes
         return nodes
 
 menu_pool.register_menu(BlogCategoryMenu)
