@@ -3,13 +3,12 @@ from setuptools import setup, find_packages
 from aldryn_blog import __version__
 
 REQUIREMENTS = [
-    'django-taggit<0.12',
+    'django-taggit==0.19.1',
     'django-filer',
-    'django_select2',
+    'django_select2==4.3.2',
     'djangocms-text-ckeditor',
     'django-appconf',
     'django-classy-tags',
-    'south>=0.8',
     'aldryn_common',
     'django-hvad',
     'unidecode',
@@ -35,7 +34,7 @@ setup(
     description='Adds blogging abilities to django CMS',
     author='Divio AG',
     author_email='info@divio.ch',
-    url='https://github.com/aldryn/aldryn-blog',
+    url='https://github.com/softformance/aldryn-blog',
     packages=find_packages(),
     license='LICENSE.txt',
     platforms=['OS Independent'],

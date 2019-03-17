@@ -1,141 +1,114 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import filer.fields.image
+import django.utils.timezone
+import djangocms_text_ckeditor.fields
+from django.conf import settings
+import app_data.fields
+import cms.models.fields
+import taggit.managers
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    depends_on = (
-        ("taggit", "0001_initial"),
-    )
+    dependencies = [
+        ('taggit', '0002_auto_20150616_2121'),
+        ('filer', '0007_auto_20161016_1055'),
+        ('cms', '0013_auto_20160404_1908'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-    def forwards(self, orm):
-        # Adding model 'Post'
-        db.create_table('aldryn_blog_post', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('slug', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255, blank=True)),
-            ('content', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['cms.Placeholder'], null=True)),
-            ('author', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('publication_date', self.gf('django.db.models.fields.DateField')(default=datetime.date.today)),
-        ))
-        db.send_create_signal('aldryn_blog', ['Post'])
-
-        # Adding model 'LatestEntriesPlugin'
-        db.create_table('cmsplugin_latestentriesplugin', (
-            ('cmsplugin_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['cms.CMSPlugin'], unique=True, primary_key=True)),
-            ('latest_entries', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('aldryn_blog', ['LatestEntriesPlugin'])
-
-        # Adding M2M table for field tags on 'LatestEntriesPlugin'
-        db.create_table('aldryn_blog_latestentriesplugin_tags', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('latestentriesplugin', models.ForeignKey(orm['aldryn_blog.latestentriesplugin'], null=False)),
-            ('tag', models.ForeignKey(orm['taggit.tag'], null=False))
-        ))
-        db.create_unique('aldryn_blog_latestentriesplugin_tags', ['latestentriesplugin_id', 'tag_id'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Post'
-        db.delete_table('aldryn_blog_post')
-
-        # Deleting model 'LatestEntriesPlugin'
-        db.delete_table('cmsplugin_latestentriesplugin')
-
-        # Removing M2M table for field tags on 'LatestEntriesPlugin'
-        db.delete_table('aldryn_blog_latestentriesplugin_tags')
-
-
-    models = {
-        'aldryn_blog.latestentriesplugin': {
-            'Meta': {'object_name': 'LatestEntriesPlugin', 'db_table': "'cmsplugin_latestentriesplugin'", '_ormbases': ['cms.CMSPlugin']},
-            'cmsplugin_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['cms.CMSPlugin']", 'unique': 'True', 'primary_key': 'True'}),
-            'latest_entries': ('django.db.models.fields.IntegerField', [], {}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['taggit.Tag']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'aldryn_blog.post': {
-            'Meta': {'ordering': "['-publication_date']", 'object_name': 'Post'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
-            'content': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cms.Placeholder']", 'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'publication_date': ('django.db.models.fields.DateField', [], {'default': 'datetime.date.today'}),
-            'slug': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'cms.cmsplugin': {
-            'Meta': {'object_name': 'CMSPlugin'},
-            'changed_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'language': ('django.db.models.fields.CharField', [], {'max_length': '15', 'db_index': 'True'}),
-            'level': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
-            'lft': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cms.CMSPlugin']", 'null': 'True', 'blank': 'True'}),
-            'placeholder': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cms.Placeholder']", 'null': 'True'}),
-            'plugin_type': ('django.db.models.fields.CharField', [], {'max_length': '50', 'db_index': 'True'}),
-            'position': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'rght': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
-            'tree_id': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'})
-        },
-        'cms.placeholder': {
-            'Meta': {'object_name': 'Placeholder'},
-            'default_width': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'slot': ('django.db.models.fields.CharField', [], {'max_length': '50', 'db_index': 'True'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'taggit.tag': {
-            'Meta': {'object_name': 'Tag'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '100'})
-        },
-        'taggit.taggeditem': {
-            'Meta': {'object_name': 'TaggedItem'},
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'taggit_taggeditem_tagged_items'", 'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'object_id': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
-            'tag': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'taggit_taggeditem_items'", 'to': "orm['taggit.Tag']"})
-        }
-    }
-
-    complete_apps = ['aldryn_blog']
+    operations = [
+        migrations.CreateModel(
+            name='AllEntriesPlugin',
+            fields=[
+                ('cmsplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='cms.CMSPlugin')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('cms.cmsplugin',),
+        ),
+        migrations.CreateModel(
+            name='AuthorsPlugin',
+            fields=[
+                ('cmsplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='cms.CMSPlugin')),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('cms.cmsplugin',),
+        ),
+        migrations.CreateModel(
+            name='Category',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('ordering', models.IntegerField(default=0, verbose_name='Ordering')),
+            ],
+            options={
+                'ordering': ['ordering'],
+                'verbose_name': 'Category',
+                'verbose_name_plural': 'Categories',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CategoryTranslation',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=255, verbose_name='Name')),
+                ('slug', models.SlugField(help_text='Auto-generated. Clean it to have it re-created. WARNING! Used in the URL. If changed, the URL will change. ', max_length=255, verbose_name='Slug', blank=True)),
+                ('language_code', models.CharField(max_length=15, db_index=True)),
+                ('master', models.ForeignKey(related_name='translations', editable=False, to='aldryn_blog.Category', null=True)),
+            ],
+            options={
+                'managed': True,
+                'abstract': False,
+                'db_table': 'aldryn_blog_category_translation',
+                'db_tablespace': '',
+                'default_permissions': (),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='LatestEntriesPlugin',
+            fields=[
+                ('cmsplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='cms.CMSPlugin')),
+                ('latest_entries', models.IntegerField(default=5, help_text='The number of latests entries to be displayed.')),
+                ('tags', models.ManyToManyField(help_text='Show only the blog posts tagged with chosen tags.', to='taggit.Tag', blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=('cms.cmsplugin',),
+        ),
+        migrations.CreateModel(
+            name='Post',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=255, verbose_name='Title')),
+                ('slug', models.SlugField(max_length=255, blank=True, help_text='Used in the URL. If changed, the URL will change. Clean it to have it re-created.', unique=True, verbose_name='Slug')),
+                ('language', models.CharField(choices=[(b'de', b'German')], max_length=5, blank=True, help_text='leave empty to display in all languages', null=True, verbose_name='language')),
+                ('lead_in', djangocms_text_ckeditor.fields.HTMLField(help_text='Will be displayed in lists, and at the start of the detail page (in bold)', verbose_name='Lead-in')),
+                ('publication_start', models.DateTimeField(default=django.utils.timezone.now, help_text='Used in the URL. If changed, the URL will change.', verbose_name='Published Since')),
+                ('publication_end', models.DateTimeField(null=True, verbose_name='Published Until', blank=True)),
+                ('app_data', app_data.fields.AppDataField(default=b'{}', editable=False)),
+                ('author', models.ForeignKey(verbose_name='Author', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('category', models.ForeignKey(verbose_name='Category', blank=True, to='aldryn_blog.Category', null=True)),
+                ('coauthors', models.ManyToManyField(related_name='aldryn_blog_coauthors', null=True, verbose_name='Co-Authors', to=settings.AUTH_USER_MODEL, blank=True)),
+                ('content', cms.models.fields.PlaceholderField(related_name='aldryn_blog_posts', slotname=b'aldryn_blog_post_content', editable=False, to='cms.Placeholder', null=True)),
+                ('key_visual', filer.fields.image.FilerImageField(verbose_name='Key Visual', blank=True, to='filer.Image', null=True)),
+                ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', blank=True, help_text='A comma-separated list of tags.', verbose_name='Tags')),
+            ],
+            options={
+                'ordering': ['-publication_start'],
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='categorytranslation',
+            unique_together=set([('language_code', 'master'), ('slug', 'language_code')]),
+        ),
+    ]

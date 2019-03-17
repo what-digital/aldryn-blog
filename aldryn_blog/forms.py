@@ -47,6 +47,7 @@ class PostForm(forms.ModelForm):
         widgets = {
             'tags': PostTagWidget
         }
+        fields = '__all__'
 
 
 class AutoSlugForm(TranslatableModelForm):

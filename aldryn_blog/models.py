@@ -80,8 +80,8 @@ class Category(TranslatableModel):
 
 class RelatedManager(models.Manager):
 
-    def get_query_set(self):
-        qs = super(RelatedManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(RelatedManager, self).get_queryset()
         return qs.select_related('key_visual')
 
     def filter_by_language(self, language):
@@ -143,8 +143,8 @@ class RelatedManager(models.Manager):
 
 class PublishedManager(RelatedManager):
 
-    def get_query_set(self):
-        qs = super(PublishedManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(PublishedManager, self).get_queryset()
         now = timezone.now()
         qs = qs.filter(publication_start__lte=now)
         qs = qs.filter(Q(publication_end__isnull=True) | Q(publication_end__gte=now))
