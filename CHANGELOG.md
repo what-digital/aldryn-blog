@@ -2,6 +2,13 @@ CHANGELOG
 =========
 
 
+0.4.9 (2019-03-19)
+------------------
+
+* pin 'django-select2' to 5.11.1 and 'django-taggit' to 0.24.0
+* update code for django-select2
+
+
 0.4.8 (2019-03-18)
 ------------------
 

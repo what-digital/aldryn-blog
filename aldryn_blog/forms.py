@@ -10,7 +10,7 @@ from hvad.forms import TranslatableModelForm
 
 from app_data.forms import multiform_factory
 
-import django_select2
+from django_select2.forms import Select2MultipleWidget, Select2Mixin
 
 import taggit
 
@@ -22,18 +22,18 @@ class LatestEntriesForm(forms.ModelForm):
     class Meta:
 
         widgets = {
-            'tags': django_select2.Select2MultipleWidget
+            'tags': Select2MultipleWidget
         }
+        fields = '__all__'
 
 
-class PostTagWidget(django_select2.widgets.Select2Mixin, taggit.forms.TagWidget):
+class PostTagWidget(Select2Mixin, taggit.forms.TagWidget):
 
-    def __init__(self, *args, **kwargs):
-        options = kwargs.get('select2_options', {})
-        options['tags'] = list(taggit.models.Tag.objects.values_list('name', flat=True))
-        options['tokenSeparators'] = [',']
-        kwargs['select2_options'] = options
-        super(PostTagWidget, self).__init__(*args, **kwargs)
+    def build_attrs(self, *args, **kwargs):
+        """Add select2 data attributes."""
+        attrs = super(Select2Mixin, self).build_attrs(*args, **kwargs)
+        attrs['data-token-separators'] = [',']
+        return attrs
 
     def render_js_code(self, *args, **kwargs):
         js_code = super(PostTagWidget, self).render_js_code(*args, **kwargs)
@@ -42,11 +42,10 @@ class PostTagWidget(django_select2.widgets.Select2Mixin, taggit.forms.TagWidget)
 
 class PostForm(forms.ModelForm):
 
-    class Meta:
+    tags = forms.ModelMultipleChoiceField(queryset=taggit.models.Tag.objects.values_list('name', flat=True),
+                                    widget=PostTagWidget)
 
-        widgets = {
-            'tags': PostTagWidget
-        }
+    class Meta:
         fields = '__all__'
 
 

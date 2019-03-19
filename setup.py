@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 from aldryn_blog import __version__
 
 REQUIREMENTS = [
-    'django-taggit==0.19.1',
+    'django-taggit==0.24.0',
     'django-filer',
-    'django_select2==4.3.2',
+    'django_select2==5.11.1',
     'djangocms-text-ckeditor',
     'django-appconf',
     'django-classy-tags',
