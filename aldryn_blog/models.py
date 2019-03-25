@@ -85,7 +85,7 @@ class RelatedManager(models.Manager):
         return qs.select_related('key_visual')
 
     def filter_by_language(self, language):
-        qs = self.get_query_set()
+        qs = self.get_queryset()
         return qs.filter(Q(language__isnull=True) | Q(language=language))
 
     def filter_by_current_language(self):
