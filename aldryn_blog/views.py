@@ -33,7 +33,7 @@ class BasePostView(object):
         return manager.filter_by_current_language()
 
     def render_to_response(self, context, **response_kwargs):
-        response_kwargs['current_app'] = resolve(self.request.path).namespace
+        self.request.current_app = resolve(self.request.path).namespace
         return super(BasePostView, self).render_to_response(context, **response_kwargs)
 
 
