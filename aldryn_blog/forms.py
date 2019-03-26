@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
-from unidecode import unidecode
-
+from app_data.forms import multiform_factory
 from django import forms
 from django.template.defaultfilters import slugify
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext, get_language
-
+from django.utils.translation import get_language, ugettext
+from django_select2.forms import Select2MultipleWidget
 from hvad.forms import TranslatableModelForm
-
-from app_data.forms import multiform_factory
-
-from django_select2.forms import Select2MultipleWidget, Select2Mixin
-
-import taggit
+from unidecode import unidecode
 
 from .models import Post
 
@@ -27,23 +21,7 @@ class LatestEntriesForm(forms.ModelForm):
         fields = '__all__'
 
 
-class PostTagWidget(Select2Mixin, taggit.forms.TagWidget):
-
-    def build_attrs(self, *args, **kwargs):
-        """Add select2 data attributes."""
-        attrs = super(Select2Mixin, self).build_attrs(*args, **kwargs)
-        attrs['data-token-separators'] = [',']
-        return attrs
-
-    def render_js_code(self, *args, **kwargs):
-        js_code = super(PostTagWidget, self).render_js_code(*args, **kwargs)
-        return js_code.replace('$', 'jQuery')
-
-
 class PostForm(forms.ModelForm):
-
-    tags = forms.ModelMultipleChoiceField(queryset=taggit.models.Tag.objects.values_list('name', flat=True),
-                                    widget=PostTagWidget)
 
     class Meta:
         fields = '__all__'
@@ -56,6 +34,8 @@ class AutoSlugForm(TranslatableModelForm):
 
     def clean(self):
         super(AutoSlugForm, self).clean()
+
+        self.data = self.data.copy()
 
         if not self.fields.get(self.slug_field):
             return self.cleaned_data
