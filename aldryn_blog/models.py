@@ -49,7 +49,6 @@ class Category(TranslatableModel):
             help_text=_('Auto-generated. Clean it to have it re-created. '
                         'WARNING! Used in the URL. If changed, the URL will change. ')
         ),
-        meta={'unique_together': [['slug', 'language_code']]}
     )
 
     ordering = models.IntegerField(_('Ordering'), default=0)
@@ -60,6 +59,7 @@ class Category(TranslatableModel):
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
         ordering = ['ordering']
+        unique_together = (('slug', 'language_code'),)
 
     def __unicode__(self):
         return self.lazy_translation_getter('name', str(self.pk))
