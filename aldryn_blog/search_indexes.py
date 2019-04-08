@@ -11,7 +11,8 @@ from .models import Post
 class BlogIndex(get_index_base()):
     haystack_use_for_indexing = settings.ALDRYN_BLOG_SEARCH
 
-    INDEX_TITLE = True
+    INDEX_TITLE = True  # for backward compatibility until 1.1.0 aldryn-search
+    index_title = True
 
     def get_title(self, obj):
         return obj.title
