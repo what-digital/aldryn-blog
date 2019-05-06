@@ -73,7 +73,7 @@ class PostAdmin(FrontendEditableAdminMixin, PlaceholderAdminMixin, admin.ModelAd
 class CategoryAdmin(TranslatableAdmin):
 
     form = CategoryForm
-    list_display = ['__unicode__', 'all_translations', 'ordering']
+    list_display = ['__str__', 'all_translations', 'ordering']
     list_editable = ['ordering']
 
     def get_fieldsets(self, request, obj=None):

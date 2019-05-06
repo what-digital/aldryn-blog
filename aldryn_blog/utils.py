@@ -56,7 +56,7 @@ def generate_slugs(users):
             slug = _slug
 
         else:
-            for i in xrange(2, 100):
+            for i in range(2, 100):
                 if not '%s-%i' % (_slug, i) in slugs:
                     slug = '%s-%i' % (_slug, i)
                     break

@@ -61,7 +61,7 @@ class Category(TranslatableModel):
         ordering = ['ordering']
         unique_together = (('slug', 'language_code'),)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.lazy_translation_getter('name', str(self.pk))
 
     def get_absolute_url(self, language=None):
@@ -112,7 +112,7 @@ class RelatedManager(models.Manager):
                                       .values_list('tag', 'count'))
 
         # and finally get the results
-        tags = Tag.objects.filter(pk__in=counted_tags.keys())
+        tags = Tag.objects.filter(pk__in=list(counted_tags.keys()))
         for tag in tags:
             tag.count = counted_tags[tag.pk]
         return sorted(tags, key=lambda x: -x.count)
@@ -205,7 +205,7 @@ class Post(models.Model):
     tags = TaggableManager(blank=True)
     app_data = AppDataField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -246,11 +246,11 @@ class LatestEntriesPlugin(CMSPlugin):
         help_text=_('Show only the blog posts tagged with chosen tags.')
     )
 
-    def __unicode__(self):
+    def __str__(self):
         """
         must return a unicode string
         """
-        return str(self.latest_entries).decode('utf8')
+        return self.latest_entries
 
     def copy_relations(self, oldinstance):
         self.tags = oldinstance.tags.all()
