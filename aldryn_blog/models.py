@@ -21,6 +21,7 @@ from cms.models.pluginmodel import CMSPlugin
 from djangocms_text_ckeditor.fields import HTMLField
 from filer.fields.image import FilerImageField
 from hvad.models import TranslationManager, TranslatableModel, TranslatedFields
+from hvad import VERSION as HVAD_VERSION
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItem, Tag
 
@@ -66,7 +67,11 @@ class Category(TranslatableModel):
         unique_together = (('slug', 'language_code'),)
 
     def __str__(self):
-        return self.lazy_translation_getter('name', str(self.pk))
+        if HVAD_VERSION >= (2, 0, 0):
+            name = getattr(self.translations.active, 'name', str(self.pk))
+        else:
+            name = self.lazy_translation_getter('name', str(self.pk))
+        return name
 
     def get_absolute_url(self, language=None):
         language = language or get_current_language()
