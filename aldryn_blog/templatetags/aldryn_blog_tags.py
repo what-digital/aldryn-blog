@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from django import template
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    # Django <= 1.10
+    from django.core.urlresolvers import reverse
 
 from ..models import Post
 

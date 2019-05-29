@@ -3,7 +3,11 @@ import datetime
 
 from django.contrib.sites.models import Site
 from django.contrib.syndication.views import Feed
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    # Django <= 1.10
+    from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import get_language, get_language_from_request, ugettext as _
 

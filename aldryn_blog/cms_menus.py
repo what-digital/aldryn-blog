@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.core.urlresolvers import NoReverseMatch
+try:
+    from django.urls import NoReverseMatch
+except ImportError:
+    # Django <= 1.10
+    from django.core.urlresolvers import NoReverseMatch
 from django.db.models.signals import post_save, post_delete
 from django.utils.translation import ugettext_lazy as _
 
