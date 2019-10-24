@@ -59,7 +59,11 @@ class ArchiveView(BasePostView, ArchiveIndexView):
         return qs
 
     def get_context_data(self, **kwargs):
-        page = self.request.GET.get('page', 1)
+        # Make sure page request is an int. If not, deliver first page.
+        try:
+            page = int(self.request.GET.get('page', 1))
+        except ValueError:
+            page = 1
         kwargs['day'] = int(self.kwargs.get('day')) if 'day' in self.kwargs else None
         kwargs['month'] = int(self.kwargs.get('month')) if 'month' in self.kwargs else None
         kwargs['year'] = int(self.kwargs.get('year')) if 'year' in self.kwargs else None
