@@ -188,7 +188,6 @@ class Post(models.Model):
     coauthors = models.ManyToManyField(
         to=AUTH_USER_MODEL,
         verbose_name=_('Co-Authors'),
-        null=True,
         blank=True,
         related_name='aldryn_blog_coauthors'
     )
