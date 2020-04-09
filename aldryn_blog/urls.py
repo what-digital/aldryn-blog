@@ -5,6 +5,8 @@ from aldryn_blog.feeds import CategoryFeed, LatestEntriesFeed, TagFeed
 from aldryn_blog.views import (ArchiveView, AuthorEntriesView, AuthorsListView, CategoryListView, CategoryPostListView,
                                PostDetailView, TaggedListView, TagsListView)
 
+app_name = 'aldryn_blog'
+
 urlpatterns = [
     url(r'^$', ArchiveView.as_view(), name='latest-posts'),
     url(r'^author/$', AuthorsListView.as_view(), name='author-list'),
