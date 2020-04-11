@@ -2,7 +2,12 @@
 import datetime
 
 from django.conf import settings
-from django.core.urlresolvers import reverse, resolve
+try:
+    from django.urls import reverse, resolve
+except ImportError:
+    # Django <= 1.10
+    from django.core.urlresolvers import reverse, resolve
+
 from django.shortcuts import get_object_or_404
 from django.utils.translation import override, get_language_from_request
 from django.views import generic
@@ -12,11 +17,11 @@ from django.views.generic.list import ListView
 from django.contrib.auth.models import User
 
 from menus.utils import set_language_changer
-from aldryn_common.paginator import DiggPaginator, paginate_by
+from aldryn_common.paginator import DiggPaginator
 
 from aldryn_blog import request_post_identifier
 from .models import Post, Category
-from .utils import generate_slugs, get_user_from_slug, get_blog_authors, get_slug_for_user
+from .utils import generate_slugs, get_user_from_slug, get_blog_authors, get_slug_for_user, paginate_by
 
 
 class BasePostView(object):
@@ -33,7 +38,7 @@ class BasePostView(object):
         return manager.filter_by_current_language()
 
     def render_to_response(self, context, **response_kwargs):
-        response_kwargs['current_app'] = resolve(self.request.path).namespace
+        self.request.current_app = resolve(self.request.path).namespace
         return super(BasePostView, self).render_to_response(context, **response_kwargs)
 
 
@@ -54,7 +59,11 @@ class ArchiveView(BasePostView, ArchiveIndexView):
         return qs
 
     def get_context_data(self, **kwargs):
-        page = self.request.GET.get('page', 1)
+        # Make sure page request is an int. If not, deliver first page.
+        try:
+            page = int(self.request.GET.get('page', 1))
+        except ValueError:
+            page = 1
         kwargs['day'] = int(self.kwargs.get('day')) if 'day' in self.kwargs else None
         kwargs['month'] = int(self.kwargs.get('month')) if 'month' in self.kwargs else None
         kwargs['year'] = int(self.kwargs.get('year')) if 'year' in self.kwargs else None

@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from django import template
-from django.core.urlresolvers import reverse
+try:
+    from django.urls import reverse
+except ImportError:
+    # Django <= 1.10
+    from django.core.urlresolvers import reverse
 
 from ..models import Post
 
@@ -22,7 +26,7 @@ def user_name(user):
     return user.username
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_blog_post_tags(post):
     """
     Returns a list of tags for post, with an extra url attribute.
@@ -34,7 +38,7 @@ def get_blog_post_tags(post):
     return post_tags
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_related_posts(post, by_categories=True, by_tags=True, by_latest=True, wanted_count=5):
     """
     Returns a list of blog objects being related to the one given.

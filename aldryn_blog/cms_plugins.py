@@ -71,8 +71,20 @@ class BlogArchivePlugin(BlogPlugin):
         return context
 
 
+class AllEntriesPlugin(BlogPlugin):
+
+    render_template = 'aldryn_blog/plugins/all_post_list.html'
+    name = _('All Posts')
+    model = models.AllEntriesPlugin
+
+    def render(self, context, instance, placeholder):
+        context['instance'] = instance
+        return context
+
+
 plugin_pool.register_plugin(LatestEntriesPlugin)
 plugin_pool.register_plugin(AuthorsPlugin)
 plugin_pool.register_plugin(BlogTagsPlugin)
 plugin_pool.register_plugin(BlogCategoriesPlugin)
 plugin_pool.register_plugin(BlogArchivePlugin)
+plugin_pool.register_plugin(AllEntriesPlugin)

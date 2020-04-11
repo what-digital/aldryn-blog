@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from aldryn_blog.views import (
-    ArchiveView, PostDetailView, TaggedListView, AuthorEntriesView,
-    TagsListView, AuthorsListView, CategoryListView, CategoryPostListView)
-from aldryn_blog.feeds import LatestEntriesFeed, TagFeed, CategoryFeed
+from aldryn_blog.feeds import CategoryFeed, LatestEntriesFeed, TagFeed
+from aldryn_blog.views import (ArchiveView, AuthorEntriesView, AuthorsListView, CategoryListView, CategoryPostListView,
+                               PostDetailView, TaggedListView, TagsListView)
 
-urlpatterns = patterns(
-    '',
+app_name = 'aldryn_blog'
+
+urlpatterns = [
     url(r'^$', ArchiveView.as_view(), name='latest-posts'),
     url(r'^author/$', AuthorsListView.as_view(), name='author-list'),
     url(r'^author/(?P<slug>[\w.@+-]+)/$', AuthorEntriesView.as_view(), name='author-posts'),
@@ -23,4 +23,4 @@ urlpatterns = patterns(
     url(r'^tag/$', TagsListView.as_view(), name='tag-list'),
     url(r'^tag/(?P<tag>[-\w]+)/$', TaggedListView.as_view(), name='tagged-posts'),
     url(r'^tag/(?P<tag>[-\w]+)/feed/$', TagFeed(), name='tagged-posts-feed'),
-)
+]

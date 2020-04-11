@@ -6,8 +6,8 @@ from django.conf import settings
 from django.contrib import admin
 
 import cms
-from cms.admin.placeholderadmin import PlaceholderAdmin, FrontendEditableAdmin
-
+from cms.admin.placeholderadmin import PlaceholderAdminMixin
+from cms.admin.placeholderadmin import FrontendEditableAdminMixin
 from hvad.admin import TranslatableAdmin
 
 from .forms import (
@@ -18,7 +18,7 @@ from .forms import (
 from .models import Post, Category
 
 
-class PostAdmin(FrontendEditableAdmin, PlaceholderAdmin):
+class PostAdmin(FrontendEditableAdminMixin, PlaceholderAdminMixin, admin.ModelAdmin):
 
     # used only when enabling app_data and subclassing
     multiform = BlogPostMultiForm
@@ -69,13 +69,11 @@ class PostAdmin(FrontendEditableAdmin, PlaceholderAdmin):
         request.GET = data
         return super(PostAdmin, self).add_view(request, *args, **kwargs)
 
-admin.site.register(Post, PostAdmin)
-
 
 class CategoryAdmin(TranslatableAdmin):
 
     form = CategoryForm
-    list_display = ['__unicode__', 'all_translations', 'ordering']
+    list_display = ['__str__', 'all_translations', 'ordering']
     list_editable = ['ordering']
 
     def get_fieldsets(self, request, obj=None):
@@ -84,4 +82,6 @@ class CategoryAdmin(TranslatableAdmin):
         ]
         return fieldsets
 
+
+admin.site.register(Post, PostAdmin)
 admin.site.register(Category, CategoryAdmin)

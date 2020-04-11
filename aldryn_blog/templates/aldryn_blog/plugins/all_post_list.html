@@ -1,0 +1,7 @@
+{% load i18n menu_tags cache %}
+<div class="aldryn aldryn-blog aldryn-blog-entries">
+    {% for post in instance.get_posts %}
+        {% include "aldryn_blog/includes/blog_item.html" %}
+    {% endfor %}
+
+</div>

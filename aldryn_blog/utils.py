@@ -4,8 +4,10 @@ from django.db.models import Q
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.translation import get_language
+from django.conf import settings
 
-from hvad.utils import get_translation
+from hvad.utils import get_translation, get_cached_translation
+from hvad import VERSION as HVAD_VERSION
 
 
 def get_blog_languages():
@@ -55,7 +57,7 @@ def generate_slugs(users):
             slug = _slug
 
         else:
-            for i in xrange(2, 100):
+            for i in range(2, 100):
                 if not '%s-%i' % (_slug, i) in slugs:
                     slug = '%s-%i' % (_slug, i)
                     break
@@ -88,13 +90,25 @@ def get_slug_for_user(find_user):
 def get_slug_in_language(record, language):
     if not record:
         return None
+
     # possibly no need to hit db, try cache
-    if hasattr(record, record._meta.translations_cache) and language == record.language_code:
-        return record.lazy_translation_getter('slug')
-    else:  # hit db
-        try:
-            translation = get_translation(record, language_code=language)
-        except ObjectDoesNotExist:
-            return None
-        else:
-            return translation.slug
+    if HVAD_VERSION >= (2, 0, 0):
+        if get_cached_translation(record) and language == record.language_code:
+            return getattr(record.translations.active, 'slug', None)
+    else:
+        if hasattr(record, record._meta.translations_cache) and language == record.language_code:
+            return record.lazy_translation_getter('slug')
+
+    try:
+        translation = get_translation(record, language_code=language)
+    except ObjectDoesNotExist:
+        return None
+    else:
+        return translation.slug
+
+
+def paginate_by(fallback=None):
+    try:
+        return settings.ALDRYN_BLOG_PAGINATOR_PAGINATE_BY
+    except AttributeError:
+        return fallback or 5

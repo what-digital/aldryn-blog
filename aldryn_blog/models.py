@@ -3,7 +3,11 @@ import datetime
 from collections import Counter
 
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse, NoReverseMatch
+try:
+    from django.urls import reverse, NoReverseMatch
+except ImportError:
+    # Django <= 1.10
+    from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.db.models import Q
 from django.template.defaultfilters import slugify
@@ -17,6 +21,7 @@ from cms.models.pluginmodel import CMSPlugin
 from djangocms_text_ckeditor.fields import HTMLField
 from filer.fields.image import FilerImageField
 from hvad.models import TranslationManager, TranslatableModel, TranslatedFields
+from hvad import VERSION as HVAD_VERSION
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItem, Tag
 
@@ -49,7 +54,6 @@ class Category(TranslatableModel):
             help_text=_('Auto-generated. Clean it to have it re-created. '
                         'WARNING! Used in the URL. If changed, the URL will change. ')
         ),
-        meta={'unique_together': [['slug', 'language_code']]}
     )
 
     ordering = models.IntegerField(_('Ordering'), default=0)
@@ -60,9 +64,14 @@ class Category(TranslatableModel):
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
         ordering = ['ordering']
+        unique_together = (('slug', 'language_code'),)
 
-    def __unicode__(self):
-        return self.lazy_translation_getter('name', str(self.pk))
+    def __str__(self):
+        if HVAD_VERSION >= (2, 0, 0):
+            name = getattr(self.translations.active, 'name', str(self.pk))
+        else:
+            name = self.lazy_translation_getter('name', str(self.pk))
+        return name
 
     def get_absolute_url(self, language=None):
         language = language or get_current_language()
@@ -80,12 +89,12 @@ class Category(TranslatableModel):
 
 class RelatedManager(models.Manager):
 
-    def get_query_set(self):
-        qs = super(RelatedManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(RelatedManager, self).get_queryset()
         return qs.select_related('key_visual')
 
     def filter_by_language(self, language):
-        qs = self.get_query_set()
+        qs = self.get_queryset()
         return qs.filter(Q(language__isnull=True) | Q(language=language))
 
     def filter_by_current_language(self):
@@ -102,7 +111,7 @@ class RelatedManager(models.Manager):
         entries = entries.distinct()
         if not entries:
             return []
-        kwargs = TaggedItem.bulk_lookup_kwargs(entries)
+        kwargs = {'object_id__in': entries}
 
         # aggregate and sort
         counted_tags = dict(TaggedItem.objects
@@ -112,7 +121,7 @@ class RelatedManager(models.Manager):
                                       .values_list('tag', 'count'))
 
         # and finally get the results
-        tags = Tag.objects.filter(pk__in=counted_tags.keys())
+        tags = Tag.objects.filter(pk__in=list(counted_tags.keys()))
         for tag in tags:
             tag.count = counted_tags[tag.pk]
         return sorted(tags, key=lambda x: -x.count)
@@ -143,8 +152,8 @@ class RelatedManager(models.Manager):
 
 class PublishedManager(RelatedManager):
 
-    def get_query_set(self):
-        qs = super(PublishedManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(PublishedManager, self).get_queryset()
         now = timezone.now()
         qs = qs.filter(publication_start__lte=now)
         qs = qs.filter(Q(publication_end__isnull=True) | Q(publication_end__gte=now))
@@ -169,17 +178,16 @@ class Post(models.Model):
         choices=settings.LANGUAGES,
         help_text=_('leave empty to display in all languages')
     )
-    key_visual = FilerImageField(verbose_name=_('Key Visual'), blank=True, null=True)
+    key_visual = FilerImageField(verbose_name=_('Key Visual'), blank=True, null=True, on_delete=models.SET_NULL)
     lead_in = HTMLField(
         verbose_name=_('Lead-in'),
         help_text=_('Will be displayed in lists, and at the start of the detail page (in bold)')
     )
     content = PlaceholderField('aldryn_blog_post_content', related_name='aldryn_blog_posts')
-    author = models.ForeignKey(to=AUTH_USER_MODEL, verbose_name=_('Author'))
+    author = models.ForeignKey(to=AUTH_USER_MODEL, verbose_name=_('Author'), null=True, blank=True, on_delete=models.SET_NULL)
     coauthors = models.ManyToManyField(
         to=AUTH_USER_MODEL,
         verbose_name=_('Co-Authors'),
-        null=True,
         blank=True,
         related_name='aldryn_blog_coauthors'
     )
@@ -197,7 +205,8 @@ class Post(models.Model):
         to=Category,
         verbose_name=_('Category'),
         null=True,
-        blank=True
+        blank=True,
+        on_delete=models.deletion.CASCADE
     )
 
     objects = RelatedManager()
@@ -205,7 +214,7 @@ class Post(models.Model):
     tags = TaggableManager(blank=True)
     app_data = AppDataField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -246,11 +255,11 @@ class LatestEntriesPlugin(CMSPlugin):
         help_text=_('Show only the blog posts tagged with chosen tags.')
     )
 
-    def __unicode__(self):
+    def __str__(self):
         """
         must return a unicode string
         """
-        return str(self.latest_entries).decode('utf8')
+        return self.latest_entries
 
     def copy_relations(self, oldinstance):
         self.tags = oldinstance.tags.all()
@@ -262,6 +271,13 @@ class LatestEntriesPlugin(CMSPlugin):
         if tags.exists():
             posts = posts.filter(tags__in=tags)
         return posts[:self.latest_entries]
+
+
+class AllEntriesPlugin(CMSPlugin):
+
+    def get_posts(self):
+        posts = Post.published.filter_by_language(self.language)
+        return posts
 
 
 class AuthorsPlugin(CMSPlugin):
