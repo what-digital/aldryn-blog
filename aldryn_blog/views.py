@@ -17,7 +17,7 @@ from django.views.generic.list import ListView
 from django.contrib.auth.models import User
 
 from menus.utils import set_language_changer
-from aldryn_common.paginator import DiggPaginator
+from django.core.paginator import Paginator as DiggPaginator
 
 from aldryn_blog import request_post_identifier
 from .models import Post, Category
