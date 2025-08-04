@@ -10,7 +10,7 @@ REQUIREMENTS = [
     'django-appconf',
     'django-classy-tags',
     'aldryn_common',
-    'django-hvad',
+    'django-parler>=2.0.0',
     'unidecode',
     'django-appdata',
 ]

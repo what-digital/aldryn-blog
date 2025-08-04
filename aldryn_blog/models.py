@@ -20,8 +20,8 @@ from cms.models.fields import PlaceholderField
 from cms.models.pluginmodel import CMSPlugin
 from djangocms_text_ckeditor.fields import HTMLField
 from filer.fields.image import FilerImageField
-from hvad.models import TranslationManager, TranslatableModel, TranslatedFields
-from hvad import VERSION as HVAD_VERSION
+from parler.models import TranslatableModel, TranslatedFields, TranslatableManager
+from parler.utils.context import switch_language
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItem, Tag
 
@@ -32,12 +32,17 @@ from .utils import generate_slugs, get_blog_authors, get_slug_for_user, get_slug
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
-class CategoryManager(TranslationManager):
+class CategoryManager(TranslatableManager):
 
     def get_with_usage_count(self, language=None, **kwargs):
-        categories = list(self.language(language).filter(**kwargs).distinct())
-
-        # No annotate in hvad
+        categories = list(self.filter(**kwargs).distinct())
+        
+        # Set language for each category
+        if language:
+            for category in categories:
+                category.set_current_language(language)
+                
+        # Count posts for each category
         for category in categories:
             category.post_count = category.post_set.count()
         return sorted(categories, key=lambda x: -x.post_count)
@@ -64,23 +69,26 @@ class Category(TranslatableModel):
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
         ordering = ['ordering']
-        unique_together = (('slug', 'language_code'),)
 
     def __str__(self):
-        if HVAD_VERSION >= (2, 0, 0):
-            name = getattr(self.translations.active, 'name', str(self.pk))
-        else:
-            name = self.lazy_translation_getter('name', str(self.pk))
-        return name
+        try:
+            return self.safe_translation_getter('name', str(self.pk))
+        except:
+            return str(self.pk)
 
     def get_absolute_url(self, language=None):
         language = language or get_current_language()
-        slug = get_slug_in_language(self, language)
+        with switch_language(self, language):
+            try:
+                slug = self.slug
+                if slug:
+                    with override(language):
+                        return reverse('aldryn_blog:category-posts', kwargs={'category': slug})
+            except:
+                pass
+                
+        # category not translated in given language
         with override(language):
-            if slug:
-                return reverse('aldryn_blog:category-posts', kwargs={'category': slug})
-
-            # category not translated in given language
             try:
                 return reverse('aldryn_blog:latest-posts')
             except (ImproperlyConfigured, NoReverseMatch):

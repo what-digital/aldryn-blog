@@ -5,7 +5,7 @@ from django.template.defaultfilters import slugify
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, gettext
 from django_select2.forms import Select2MultipleWidget
-from hvad.forms import TranslatableModelForm
+from parler.forms import TranslatableModelForm
 from unidecode import unidecode
 
 from .models import Post
@@ -61,20 +61,21 @@ class AutoSlugForm(TranslatableModelForm):
         return slugify(unidecode(content_to_slugify))
 
     def get_slug_conflict(self, slug):
-        translations_model = self.instance._meta.translations_model
-
-        try:
-            language_code = self.instance.language_code
-        except translations_model.DoesNotExist:
-            language_code = get_language()
-
-        conflicts = translations_model.objects.filter(slug=slug, language_code=language_code)
+        model = self.instance.__class__
+        language_code = get_language()
+        
+        # In parler, we need to query differently
+        conflicts = model.objects.filter(
+            translations__slug=slug,
+            translations__language_code=language_code
+        )
+        
         if self.is_edit_action():
-            conflicts = conflicts.exclude(master=self.instance)
-
+            conflicts = conflicts.exclude(pk=self.instance.pk)
+        
         try:
             return conflicts.get()
-        except translations_model.DoesNotExist:
+        except model.DoesNotExist:
             return None
 
     def report_error(self, conflict):

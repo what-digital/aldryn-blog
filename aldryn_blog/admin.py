@@ -8,7 +8,7 @@ from django.contrib import admin
 import cms
 from cms.admin.placeholderadmin import PlaceholderAdminMixin
 from cms.admin.placeholderadmin import FrontendEditableAdminMixin
-from hvad.admin import TranslatableAdmin
+from parler.admin import TranslatableAdmin
 
 from .forms import (
     BlogPostMultiForm,
