@@ -12,10 +12,8 @@ from .models import Post, Category, LatestEntriesPlugin
 
 
 class LatestEntriesForm(forms.ModelForm):
-    model = LatestEntriesPlugin
-
     class Meta:
-
+        model = LatestEntriesPlugin
         widgets = {
             'tags': Select2MultipleWidget
         }
@@ -23,9 +21,8 @@ class LatestEntriesForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
-    model = Post
-
     class Meta:
+        model = Post
         fields = '__all__'
 
 
@@ -98,10 +95,10 @@ class AutoSlugForm(TranslatableModelForm):
 
 
 class CategoryForm(AutoSlugForm):
-    model = Category
     slugified_field = 'name'
 
     class Meta:
+        model = Category
         fields = ['name', 'slug']
 
 
