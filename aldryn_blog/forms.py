@@ -8,7 +8,7 @@ from django_select2.forms import Select2MultipleWidget
 from parler.forms import TranslatableModelForm
 from unidecode import unidecode
 
-from .models import Post
+from .models import Post, Category
 
 
 class LatestEntriesForm(forms.ModelForm):
