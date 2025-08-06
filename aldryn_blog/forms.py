@@ -96,7 +96,7 @@ class AutoSlugForm(TranslatableModelForm):
 
 
 class CategoryForm(AutoSlugForm):
-
+    model = Category
     slugified_field = 'name'
 
     class Meta:
