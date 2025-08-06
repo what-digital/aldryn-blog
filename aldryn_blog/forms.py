@@ -8,10 +8,11 @@ from django_select2.forms import Select2MultipleWidget
 from parler.forms import TranslatableModelForm
 from unidecode import unidecode
 
-from .models import Post, Category
+from .models import Post, Category, LatestEntriesPlugin
 
 
 class LatestEntriesForm(forms.ModelForm):
+    model = LatestEntriesPlugin
 
     class Meta:
 
@@ -22,6 +23,7 @@ class LatestEntriesForm(forms.ModelForm):
 
 
 class PostForm(forms.ModelForm):
+    model = Post
 
     class Meta:
         fields = '__all__'
