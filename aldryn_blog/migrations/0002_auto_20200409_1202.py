@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.db.models.manager
-import hvad.fields
 
 
 class Migration(migrations.Migration):
@@ -24,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='category',
             name='_hvad_query',
-            field=hvad.fields.SingleTranslationObject('aldryn_blog.Category', 'aldryn_blog.CategoryTranslation'),
+            field=None,
         ),
         migrations.AlterField(
             model_name='allentriesplugin',
@@ -39,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='categorytranslation',
             name='master',
-            field=hvad.fields.MasterKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='aldryn_blog.Category'),
+            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='aldryn_blog.Category'),
         ),
         migrations.AlterField(
             model_name='latestentriesplugin',

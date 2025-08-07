@@ -21,7 +21,7 @@ class BlogCategoryMenu(CMSAttachMenu):
     def get_nodes(self, request):
         nodes = []
         categories = Category.objects.language()
-        # bug in hvad - Meta ordering isn't preserved
+        # Ensure ordering is preserved
         categories = categories.order_by('ordering')
 
         for category in categories:

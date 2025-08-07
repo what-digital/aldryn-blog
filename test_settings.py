@@ -12,7 +12,7 @@ HELPER_SETTINGS = {
         'djangocms_text_ckeditor',
         'django_select2',
         'aldryn_common',
-        'hvad',
+        'parler',
     ],
     'THUMBNAIL_PROCESSORS': (
         'easy_thumbnails.processors.colorspace',
