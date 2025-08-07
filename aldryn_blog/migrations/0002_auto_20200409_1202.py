@@ -23,10 +23,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='category',
             name='_hvad_query',
-            field=models.ForeignKey(
+            field=SingleTranslationObject(
                 model_name='Category',
                 translation_model_name='CategoryTranslation',
-                null=True, editable=False
+                null=True,
+                editable=False,
             ),
         ),
         migrations.AlterField(
