@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.db.models.manager
+from hvad.fields import SingleTranslationObject
 
 
 class Migration(migrations.Migration):
