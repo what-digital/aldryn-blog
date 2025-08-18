@@ -20,10 +20,15 @@ class Migration(migrations.Migration):
                 ('_plain_manager', django.db.models.manager.Manager()),
             ],
         ),
-        migrations.AddField(
-            model_name='category',
-            name='_hvad_query',
-            field=None,
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.AddField(
+                    model_name='category',
+                    name='_hvad_query',
+                    field=models.IntegerField(null=True, blank=True),
+                ),
+            ],
         ),
         migrations.AlterField(
             model_name='allentriesplugin',
