@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.db.models.manager
-from hvad.fields import SingleTranslationObject
 
 
 class Migration(migrations.Migration):
@@ -24,12 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='category',
             name='_hvad_query',
-            field=SingleTranslationObject(
-                model_name='Category',
-                translation_model_name='CategoryTranslation',
-                null=True,
-                editable=False,
-            ),
+            field=None,
         ),
         migrations.AlterField(
             model_name='allentriesplugin',
